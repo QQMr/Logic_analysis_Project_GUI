@@ -47,7 +47,7 @@ class Main(qtw.QMainWindow, Ui_MainWindow):
         # add a figure to the canvas with a navigation toolbar
         self.fig = Figure()
         self.ax1f1 = self.fig.add_subplot(111)
-        self.ax1f1.set_autoscalex_on(False)
+        #self.ax1f1.set_autoscalex_on(False)
         self.canvas = FigureCanvas(self.fig)
         self.matplot_vlayout.addWidget(self.canvas)
         self.toolbar = NavigationToolbar(self.canvas,
@@ -132,15 +132,16 @@ class Main(qtw.QMainWindow, Ui_MainWindow):
             self.statusBar.showMessage('Acquiring...')
 
         if self.longmem_checkbox.isChecked():
-            self._sendCommand('MLEN LONG')
+            
             # TODO: it should work with points = 102400 but it takes too long (try using binary data)
             self.points = 30000
         else:
-            self._sendCommand('MLEN SHORT')
-            self.points = 5120
-        self._sendCommand('DTPOINTS ' + str(self.points))
+            
+            self.points = 20
+      
 
-        tdiv = float(self._sendCommand('TDIV?')) # time/div (total: 10 div)
+        #tdiv = float(self._sendCommand('TDIV?')) # time/div (total: 10 div)
+        tdiv = float(0.1);
         self.interval = (tdiv * 10) / self.points # sample_rate = 1/interval
         x = np.arange(0, self.interval * self.points, self.interval)
 
@@ -148,39 +149,17 @@ class Main(qtw.QMainWindow, Ui_MainWindow):
             self.ax1f1.clear()
             self.ax1f1.set_xlim([0, max(x)])
 
+        self.ax1f1.clear()
+        self.ax1f1.set_xlim([0, max(x)])
+            
         if self.ch1_checkbox.isChecked():
-            if self.ch1_lpfilter_checkbox.isChecked():
-                self._sendCommand('C1:BWL ON')
-            else:
-                self._sendCommand('C1:BWL OFF')
-            self.ch1_wave = self.acquireWave('C1')
+
+            #self.ch1_wave = self.acquireWave('C1')
+            self.ch1_wave = np.random.randint(7, size=self.points);
             if show_plot:
                 self.ax1f1.plot(x, self.ch1_wave)
-            period   = self.measure('CH1', 'PERIOD')
-            duty     = self.measure('CH1', 'DUTY')
-            vmean    = self.measure('CH1', 'VMEAN')
-            freq     = self.measure('CH1', 'FREQ')
-            vrms     = self.measure('CH1', 'VRMS')
-            vpp      = self.measure('CH1', 'P-P')
-            tr       = self.measure('CH1', 'TR')
-            tf       = self.measure('CH1', 'TF')
-            pos_pw   = self.measure('CH1', '+PW')
-            neg_pw   = self.measure('CH1', '-PW')
-            pos_peak = self.measure('CH1', '+PEAK')
-            neg_peak = self.measure('CH1', '-PEAK')
-            self.ch1_measure_textedit.clear()
-            self.ch1_measure_textedit.appendPlainText('Period: %s' % period)
-            self.ch1_measure_textedit.appendPlainText('Duty: %s' % duty)
-            self.ch1_measure_textedit.appendPlainText('Vmean: %s' % vmean)
-            self.ch1_measure_textedit.appendPlainText('Freq: %s' % freq)
-            self.ch1_measure_textedit.appendPlainText('Vrms: %s' % vrms)
-            self.ch1_measure_textedit.appendPlainText('Vpp: %s' % vpp)
-            self.ch1_measure_textedit.appendPlainText('Rise: %s' % tr)
-            self.ch1_measure_textedit.appendPlainText('Fall: %s' % tf)
-            self.ch1_measure_textedit.appendPlainText('+PW: %s' % pos_pw)
-            self.ch1_measure_textedit.appendPlainText('-PW: %s' % neg_pw)
-            self.ch1_measure_textedit.appendPlainText('+PEAK: %s' % pos_peak)
-            self.ch1_measure_textedit.appendPlainText('-PEAK: %s' % neg_peak)
+            self.ax1f1.plot(x, self.ch1_wave)
+           
 
             #v_at_t = self._sendCommand('CURM V_AT_T')
             #self.ch1_measure_textedit.appendPlainText('Vcursor: %s' % v_at_t)
@@ -244,6 +223,7 @@ class Main(qtw.QMainWindow, Ui_MainWindow):
 
         if show_plot:
             self.canvas.draw()
+        self.canvas.draw()
         self.statusBar.clearMessage()
         self.statusBar.showMessage('Acquiring... FINISHED')
 
